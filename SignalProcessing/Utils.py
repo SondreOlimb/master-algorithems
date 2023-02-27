@@ -16,7 +16,7 @@ def ClutterRemoval(input_val, axis=0):
 
     """
     
-    mean = input_val.mean(0) # mean over the axis 0 (range) 
+    mean = input_val.mean(axis) # mean over the axis 0 (range) 
     output_val = input_val - mean
     
     return output_val
