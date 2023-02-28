@@ -64,26 +64,29 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
 
 # Example usage
-dt = 50*1e-3 # time step (in seconds)
-x_init = np.array([[200], [80]])  # initial state (position, velocity)
+dt = 50*1e-4 # time step (in seconds)
 P_init = np.diag([10, 10])  # initial covariance matrix
 
-Q = np.diag([0.1, 0.1])  # process noise covariance
-R = np.diag([[1,1],[1, 1]])  # measurement noise covariance
+Q = np.diag([15, 0])  # process noise covariance
+#R = np.diag([1,1])  # measurement noise covariance
+R = np.array([[  4.11455458 ,-16.52043271],
+ [-16.52043271 , 66.33152914]])
+print("R",R)
+print("Q",Q)
 
 track_id = 0
 # Process measurement data
 tracks = {}
 for t,detections in enumerate( cfar_arr):
-    print(f"############### {t} ###############")
-    matches, unmatched_tracks, unmatched_observations = NearestNeighbor(detections, tracks, 10)
+    
+    matches, unmatched_tracks, unmatched_observations = NearestNeighbor(detections, tracks, 20)
     
     
     if(len(unmatched_observations)>0):
         for obs in unmatched_observations:
             
             track_id += 1
-            kf = KalmanFilter(dt, np.array([detections[obs][1],detections[obs][0]]), P_init, Q, R)
+            kf = KalmanFilter(dt, np.array([detections[obs][1],detections[obs][0]]), P_init.copy(), Q.copy(), R.copy())
             
             trk = Track(track_id, detections[obs][1], detections[obs][0], kf, 1, deque([1]))
             tracks[track_id] = trk
@@ -92,15 +95,22 @@ for t,detections in enumerate( cfar_arr):
         for trk_id, obs in matches:
             tracks[trk_id].update(detections[obs][1], detections[obs][0],1)
             tracks[trk_id].kalman_filter.predict()
+            if(tracks[trk_id].track_age >3):
+
+                print("matched: ",trk_id , tracks[trk_id].kalman_filter.x)
             tracks[trk_id].kalman_filter.update(np.array([detections[obs][1],detections[obs][0]]))
     if(len(unmatched_tracks)>0):
         for trk_id in unmatched_tracks:
+            
             tracks[trk_id].kalman_filter.predict()
+            if(tracks[trk_id].track_age >3):
+
+                print("estimare: " ,trk_id , tracks[trk_id].kalman_filter.x)
+            
             tracks[trk_id].update(tracks[trk_id].kalman_filter.x[0], tracks[trk_id].kalman_filter.x[1],0)
     
     tracks, detections = TrackMaintinance(tracks)
-    for det in detections:
-        print(det)
+    
     rotate_img =ndimage.rotate(cfar_not_arr[t], 90)
     rotate_img = cfar_not_arr[t]
     ax.plot([det[0] for det in detections], [det[1] for det in detections], 'ro',label="Tracking")
@@ -112,5 +122,5 @@ for t,detections in enumerate( cfar_arr):
     plt.draw()
     plt.pause(0.01)
     ax.cla() # clear axis for the next frame
-    print("\n")
+    #print("\n")
     #time.sleep(1)

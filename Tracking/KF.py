@@ -12,12 +12,13 @@ class KalmanFilter(object):
 
     def predict(self, u=None):
         
-        F = np.array([[1, self.dt], [0, 1]])  # state transition matrix
+        F = np.array([[1, -self.dt], [0, 1]])  # state transition matrix
         if u is not None:
             B = np.array([[(self.dt**2)/2], [self.dt]])  # control input matrix
             self.x = F @ self.x + B @ u
                       
         else:
+            
             self.x = F @ self.x
             
         self.P = F @ self.P @ F.T + self.Q
