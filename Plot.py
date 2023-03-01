@@ -98,4 +98,3 @@ def animate(i):
     plt.legend(loc='upper left')
     plt.tight_layout()
 
-def 

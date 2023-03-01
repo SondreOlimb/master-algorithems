@@ -20,7 +20,7 @@ munkholm = "felttest2/Record_2022-09-28_15-13-15/Record_2022-09-28_15-13-15.bin"
 
 
 
-fig = plt.figure(figsize=(10,10))
+
 
 
 
@@ -118,6 +118,8 @@ for t,detections in enumerate( cfar_arr):
     ax.set_title(f"Frame {t}")
     ax.imshow(rotate_img,label="Detections")
     ax.legend()
+    ax.set_xticks(np.linspace(0,256,9),labels=np.round(np.linspace(0,255*0.785277,9)),size =15)
+    ax.set_yticks(np.linspace(0,256,7),labels=np.round(np.linspace(-0.127552440715*127,0.127552440715*127,7),2),size =15)
     
     plt.draw()
     plt.pause(0.01)
