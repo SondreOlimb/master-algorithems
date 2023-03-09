@@ -24,7 +24,7 @@ labels = {
     plt.figure(figsize=(10,10))
 
     #test[test>40] =0
-    rotated_img = ndimage.rotate(data,90)
+    rotated_img = data #ndimage.rotate(data,90)
     #rotated_img = radar_cube[0] 
     #rotated_img = np.flip(test,axis=0)
     rotated_img =20*np.log10(np.abs(rotated_img)) # We rotate the image so the x axis is the velocity
@@ -61,26 +61,40 @@ def PlotCFAR(data,labels = {
     "y_label":"Range [m]",
     "title": "CFAR"
 
-}):
+},isoAxis = True, rotation = True):
 
 
     
     plt.figure(figsize=(10,10))
 
-    
-    rotated_img = ndimage.rotate(data,90)
+    if rotation > 0:
+        rotated_img = np.rot90(data)
+    else:
 
-    plt.imshow(rotated_img,cmap="plasma")
-    
-    plt.yticks(np.linspace(0,256,9),labels=np.round(np.linspace(255*0.785277,0,9)),size =15)
+        rotated_img = data 
 
-
-
-    plt.xticks(np.linspace(0,256,7),labels=np.round(np.linspace(-0.127552440715*127,0.127552440715*127,7),2),size =15)
+    plt.imshow(rotated_img)
+    if isoAxis:
+        plt.yticks(np.linspace(0,256,9),labels=np.round(np.linspace(255*0.785277,0,9)),size =15)
+        plt.xticks(np.linspace(0,256,7),labels=np.round(np.linspace(-0.127552440715*127,0.127552440715*127,7),2),size =15)
     
 
     plt.xlabel(labels["x_label"],fontdict = {'fontsize' : 20})
     plt.ylabel(labels["y_label"],fontdict = {'fontsize' : 20})
     plt.title(labels["title"],fontdict = {'fontsize' : 30})
     plt.grid(False)
-    
+
+def animate(i):
+    data = pd.read_csv('data.csv')
+    x = data['x_value']
+    y1 = data['total_1']
+    y2 = data['total_2']
+
+    plt.cla()
+
+    plt.plot(x, y1, label='Channel 1')
+    plt.plot(x, y2, label='Channel 2')
+
+    plt.legend(loc='upper left')
+    plt.tight_layout()
+

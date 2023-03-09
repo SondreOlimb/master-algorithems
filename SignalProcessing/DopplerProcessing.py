@@ -1,7 +1,7 @@
 import numpy as np
 from . import Utils
 
-def DopplerProcessing(adc_data, window_type_1d=None, axis=1, fft_size=256, isClutterRemoval=False):
+def DopplerProcessing(adc_data, window_type_1d=None, axis=1, fft_size=256, isClutterRemoval=False,removeArtifacts=True):
     """Doppler processing of the input data.
 
     Parameters
@@ -25,7 +25,9 @@ def DopplerProcessing(adc_data, window_type_1d=None, axis=1, fft_size=256, isClu
     
     if isClutterRemoval:
         adc_data = Utils.ClutterRemoval(adc_data, axis=axis)
+    
     result = np.fft.fftshift( np.fft.fft(adc_data, axis=axis,n=fft_size), axes=axis)
     result[result == 0] = 1e-10
+    
     mag = 20*np.log10(np.abs(result))
     return result, mag
