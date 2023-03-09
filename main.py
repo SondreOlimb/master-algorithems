@@ -84,7 +84,7 @@ for t,detections in enumerate( cfar_arr):
     
     if(len(unmatched_observations)>0):
         for obs in unmatched_observations:
-            
+            print("unmatched: ",[detections[obs][1],detections[obs][0]])
             track_id += 1
             kf = KalmanFilter(dt, np.array([detections[obs][1],detections[obs][0]]), P_init.copy(), Q.copy(), R.copy())
             
@@ -124,5 +124,4 @@ for t,detections in enumerate( cfar_arr):
     plt.draw()
     plt.pause(0.01)
     ax.cla() # clear axis for the next frame
-    #print("\n")
-    #time.sleep(1)
+    
