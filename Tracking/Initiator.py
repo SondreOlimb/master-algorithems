@@ -138,6 +138,7 @@ class Initiator:
         confirmed_tracks = []
         delete_tracks = []
         potential_tracks = []
+        retrun_tracks = []
         for track in self.tracks:
             
             if(sum(track.track_history) < N and len(track.track_history) >= M ):
@@ -147,7 +148,8 @@ class Initiator:
                 print("CONFIRMED",track)
                 #track.track_history = deque([1,1,1,1,1])
                 confirmed_tracks.append([track.kalman_filter.x[0],track.kalman_filter.x[1]])
-                potential_tracks.append(track)
+                #potential_tracks.append(track)
+                retrun_tracks.append(track)
                 #print([track.kalman_filter.x[0],track.kalman_filter.x[1]])
                 #print(track.kalman_filter)
                 #print("confirmed",track)
@@ -156,7 +158,7 @@ class Initiator:
                 print("POTENTIAL",track)
         self.tracks = potential_tracks
         print("\n")
-        return confirmed_tracks
+        return confirmed_tracks,retrun_tracks
     
 
     def main(self, measurments):

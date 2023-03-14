@@ -23,6 +23,16 @@ class KalmanFilter(object):
             self.x = F @ self.x
             
         self.P = F @ self.P @ F.T + self.Q
+    
+    def get_prediction(self):
+        F = np.array([[1, -self.dt], [0, 1]])  # state transition matrix
+        
+                      
+       
+            
+        return F @ self.x
+            
+        self.P = F @ self.P @ F.T + self.Q
 
     def update(self, z):
         H = np.array([[1, 0], [0, 1]])  # observation matrix
@@ -37,6 +47,16 @@ class KalmanFilter(object):
         self.x = self.x + K @ y  # updated state estimate
         
         self.P = (np.eye(2) - K @ H) @ self.P  # updated covariance matrix
+
+    def nis(self, z):
+        H = np.array([[1, 0], [0, 1]])
+        F = np.array([[1, -self.dt], [0, 1]])
+        S = H @ self.P @ H.T + self.R
+        K = self.P @ H.T @ np.linalg.inv(S)
+        x_pred = F @ self.x
+        
+        innovation = z - H @ x_pred
+        return innovation.T @ np.linalg.inv(S) @ innovation
     def __str__(self):
         return f"Range:{self.x[0]*0.785277}, V:{(128-self.x[1])*-0.12755}"
     

@@ -21,6 +21,7 @@ from operator import itemgetter
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from SignalProcessing.algo import algorithm_cfar_1d,algorithm_cfar_1_v2
 from Tracking.Initiator import Initiator
+from Tracking.TOMHT import TOMHT
 
 no_reflector = "felttest1/Record_2022-09-27_14-34-48/Record_2022-09-27_14-34-48.bin"
 best_restult = "felttest1/Record_2022-09-27_14-14-14/Record_2022-09-27_14-14-14.bin"
@@ -43,28 +44,40 @@ for i in range(200,len(data_IF)):
 
 fig, ax = plt.subplots(1, 2, figsize=(10, 10))
 initiat = Initiator(3,5)
+MHT = TOMHT()
 for i, det in enumerate(cfar_arr):
     print("\n",f"############ {i} #############")
     
-    detections = initiat.main(det)
     
+    plt.title(f"Frame {i}")
     #rotate_img =ndimage.rotate(cfar_not_arr[i], 90)
+    
+    print(det.shape)
+    tracks, unused_measurments = MHT.main(det)
+   
+    if(len(MHT.tracks)>0):
+        ax[1].plot([det[0] for det in tracks], [det[1] for det in tracks], 'ro',label="Tracking")
+    detections,tar = initiat.main(unused_measurments)
     rotate_img = cfar_not_arr[i]
     if(len(detections)>0):
-        #print("Detections:",detections)
-        ax[1].plot([det[0] for det in detections], [det[1] for det in detections], 'ro',label="Tracking")
+        MHT.new_track(tar)
+
+        ax[0].plot([det[0] for det in detections], [det[1] for det in detections], 'ro',label="Tracking")
     # display the image
     #ax.set_title(f"Frame {i}")
     ax[0].imshow(rotate_img,label="Detections")
     ax[1].imshow(rotate_img,label="Detections")
+    ax[1].set_title("MHT")
+    ax[0].set_title("NN tracking")
     #plt.legend()
-    #ax.set_xticks(np.linspace(0,256,9),labels=np.round(np.linspace(0,255*0.785277,9)),size =15)
-    #ax.set_yticks(np.linspace(0,256,7),labels=np.round(np.linspace(-0.127552440715*127,0.127552440715*127,7),2),size =15)
-    
+    ax[1].set_xticks(np.linspace(0,256,9),labels=np.round(np.linspace(0,255*0.785277,9)),size =10)
+    ax[1].set_yticks(np.linspace(0,256,7),labels=np.round(np.linspace(-0.127552440715*127,0.127552440715*127,7),2),size =10)
+    ax[0].set_xticks(np.linspace(0,256,9),labels=np.round(np.linspace(0,255*0.785277,9)),size =10)
+    ax[0].set_yticks(np.linspace(0,256,7),labels=np.round(np.linspace(-0.127552440715*127,0.127552440715*127,7),2),size =10)
     plt.draw()
     plt.pause(0.01)
     #print("displayed")
-    input("Press Enter to continue...")
+    #input("Press Enter to continue...")
     ax[0].cla() # clear axis for the next frame
     ax[1].cla() # clear axis for the next frame
     

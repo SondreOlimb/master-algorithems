@@ -32,7 +32,7 @@ class Track:
         
    
     
-    def update(self, x, vx,hist):
+    def update(self, x, vx,hist=1):
         """Updates the state of the track with a new observation."""
         self.kalman_filter.update(np.array([x,vx]))
         self.vx = self.kalman_filter.x[1]
@@ -40,7 +40,7 @@ class Track:
         self.track_age += 1
         self.track_history.append(hist)
         if(len(self.track_history)>self.track_length):
-            print("##################################hei")
+            
             self.track_history.popleft()
     def no_update(self):
         """Updates the state of the track with a new observation."""
@@ -48,6 +48,24 @@ class Track:
         self.track_history.append(0)
         if(len(self.track_history)>self.track_length):
             self.track_history.popleft()
+    def nis(self,z):
+        return self.kalman_filter.nis(z)
+
+    def predict(self):
+        """Propagates the state distribution to the current time."""
+        self.kalman_filter.predict()
+        self.vx = self.kalman_filter.x[1]
+        self.x = self.kalman_filter.x[0]
+        self.track_history.append(0)
+        if(len(self.track_history)>self.track_length):
+            self.track_history.popleft()
+    
+    def get_state(self):
+        """Returns the current state of the track."""
+        return self.kalman_filter.x
+    def get_prediction(self):
+        """Returns the current state of the track."""
+        return self.kalman_filter.get_prediction()
 
     def __str__(self):
         return f"ID:{self.track_id}, Range:{round(self.x*0.785277,2)}, V:{round((128-self.vx)*-0.12755,2)}, History:{self.track_history}"
